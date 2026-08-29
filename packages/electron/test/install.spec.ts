@@ -17,9 +17,9 @@ const { ELECTRON_VERSION, packager } = vi.hoisted(() => {
   }
 })
 
-// `install.ts` requires `@electron/packager` dynamically so that mksnapshot cannot
-// discover it, which also puts it out of reach of `vi.mock`. Seed node's own module
-// cache instead, so packaging is never actually attempted from a unit test.
+// `install.ts` requires `@electron/packager` dynamically so mksnapshot cannot
+// discover it, which also puts it out of reach of `vi.mock`. Seeding node's own
+// module cache is what keeps a unit test from packaging a real binary.
 const installRequire = createRequire(new URL('../src/install.ts', import.meta.url))
 const packagerPath = installRequire.resolve('@electron/packager')
 
@@ -110,11 +110,6 @@ describe('install', () => {
   // the only paths `getFileHash` can read, mapped to their contents
   let files: Map<string, string>
 
-  /**
-   * Puts everything in the state `ensure()` expects of an up to date binary:
-   * a matching version file, an executable on disk and, on darwin, a cached
-   * icon identical to the one in `@packages/icons`.
-   */
   const setUpToDateBinary = (platform: string, arch = 'x64') => {
     vi.mocked(os.platform).mockReturnValue(platform as NodeJS.Platform)
     vi.mocked(os.arch).mockReturnValue(arch as NodeJS.Architecture)

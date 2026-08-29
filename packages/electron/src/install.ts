@@ -61,10 +61,9 @@ async function getFileHash (filePath: string): Promise<string> {
   return hash.digest('hex')
 }
 
-// `@electron/packager` only leaves a standalone icon file inside the packaged app
-// on darwin. On win32 the icon is written into `Cypress.exe` itself by rcedit and
-// on linux no icon is applied at all, so there is nothing to compare against and
-// the icon can never drift out of date on those platforms.
+// `@electron/packager` only leaves a standalone icon file in the packaged app on
+// darwin. On win32 rcedit writes the icon into `Cypress.exe` and on linux none is
+// applied, so there is nothing to compare against there.
 async function checkIconVersion (platform: string) {
   if (platform !== 'darwin') {
     return
@@ -222,8 +221,6 @@ export function ensure () {
     checkCurrentVersion(pathToVersion),
     // check if the dist folder exist and re-build if not
     fs.stat(pathToExec),
-    // Compare the icon in dist with the one in the icons
-    // package. If different, force the re-build.
     checkIconVersion(platform),
   ]).then(() => {
     // check that the arch of the built binary matches our CPU
